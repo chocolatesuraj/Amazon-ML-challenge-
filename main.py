@@ -5,7 +5,7 @@ from PIL import Image
 import pytesseract
 import src.utils
 
-pytesseract.pytesseract.tesseract_cmd = r"C:/Users/xgadg/Downloads/tesseract-ocr-w64-setup-5.4.0.20240606.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:/Program Files/Tesseract-OCR/tesseract.exe"
 
 def predictor(image_link, category_id, entity_name):
     '''
@@ -25,9 +25,11 @@ def predictor(image_link, category_id, entity_name):
         print(f"Image saved to: {os.path.join(download_folder, os.path.basename(image_link))}")
         image_save_path = os.path.join(download_folder, os.path.basename(image_link))
         # Open the image and extract text
+
         print("Extracting text from image")
         image = Image.open(image_save_path)
         text_in_image = pytesseract.image_to_string(image)
+        print("texttttttttt",text_in_image)
     
     except Exception as e:
         print(f"Error processing image: {image_link}. Error: {str(e)}")
