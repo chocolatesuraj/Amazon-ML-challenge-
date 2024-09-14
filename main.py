@@ -140,13 +140,47 @@ def predictor(image_link, category_id, entity_name):
     
     return ""  # Ignore return value as requested
 
+import os
+import pandas as pd
+
 if __name__ == "__main__":
     DATASET_FOLDER = "C:/Users/xgadg/Downloads/66e31d6ee96cd_student_resource_3/student_resource 3/dataset"
-    
-    test = pd.read_csv(os.path.join(DATASET_FOLDER, 'test.csv'))
-    
-    test['prediction'] = test.apply(
-        lambda row: predictor(row['image_link'], row['group_id'], row['entity_name']), axis=1)
-    
     output_filename = os.path.join(DATASET_FOLDER, 'test_out.csv')
-    test[['index', 'prediction']].to_csv(output_filename, index=False)
+
+    # Initialize previous results as an empty DataFrame if the file does not exist or is empty
+    if os.path.exists(output_filename) and os.path.getsize(output_filename) > 0:
+        previous_results = pd.read_csv(output_filename)
+    else:
+        # Create an empty DataFrame for previous results
+        previous_results = pd.DataFrame(columns=['index', 'prediction'])
+
+    # Load the test CSV
+    test = pd.read_csv(os.path.join(DATASET_FOLDER, 'test.csv'))
+    total_rows = len(test)
+    processed_rows=0
+    # Process each row
+    for _, row in test.iterrows():
+        index = row['index']
+        image_link = row['image_link']
+        category_id = row['group_id']
+        entity_name = row['entity_name']
+        
+        # Check if the index already exists in previous results
+        if index in previous_results['index'].values:
+            print(f"Index {index} already processed, skipping.")
+            continue  # Skip this index
+
+        # Process the row and get the prediction
+        prediction = predictor(image_link, category_id, entity_name)
+        
+        # Append the new result to the output file
+        with open(output_filename, 'a') as f:
+            f.write(f"{index},{prediction}\n")
+
+        print(f"Processed index {index} with prediction: {prediction}")
+
+        processed_rows += 1
+        progress_percentage = (processed_rows / total_rows) * 100
+        print(f"Progress: {processed_rows}/{total_rows} ({progress_percentage:.2f}%)")
+
+    print(f"Results appended to: {output_filename}")
