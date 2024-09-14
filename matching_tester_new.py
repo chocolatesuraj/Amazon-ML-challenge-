@@ -65,38 +65,51 @@ def generate_abbreviation_map(entity_key, entity_unit_map, abbreviation_map):
 
 # Function to map units and extract the number and unit, including decimals
 def extract_number_and_unit(text, valid_units, unit_mapping):
-    # Create a regex pattern for valid units or abbreviations
+    """
+    Extracts numbers followed by units from a given text.
+
+    Args:
+    text (str): The input text.
+    valid_units (list): A list of valid unit names.
+    unit_mapping (dict): A dictionary mapping unit abbreviations to full names.
+
+    Returns:
+    list: A list of extracted number-unit pairs.
+    """
+
+    # Create a regex pattern for the valid units or abbreviations
     unit_pattern = '|'.join([re.escape(unit) for unit in valid_units] + [re.escape(abbrev) for abbrev in unit_mapping.keys()])
-    
-    # Regex to match an integer or decimal number and optionally a unit
-    number_pattern = r'(\d+(?:\.\d+)?)(?:\s+([a-zA-Z]+))?'
-    
-    def find_number_and_unit(text):
-        return re.finditer(number_pattern, text, re.IGNORECASE)
-    
-    for match in find_number_and_unit(text):
+
+    # Regex to match an integer or decimal number followed by any valid unit or abbreviation
+    pattern = r'(\d+(?:\.\d+)?)\s*([a-zA-Z]+)'
+
+    matches = []
+    for match in re.finditer(pattern, text, re.IGNORECASE):
         number = match.group(1)
-        unit_abbreviation = match.group(2)
-        
-        if unit_abbreviation:
-            unit_abbreviation = unit_abbreviation.lower()
-            if unit_abbreviation in unit_mapping:
-                # Convert abbreviation to full unit name
-                full_unit = unit_mapping[unit_abbreviation]
-                return f"{number} {full_unit}"
-            elif unit_abbreviation in valid_units:
-                # It's already a valid unit
-                return f"{number} {unit_abbreviation}"
-        # If no valid unit was immediately found, continue to search the next numbers
-        continue
-    
-    # If no valid unit is found with any number, return this
-    return "No valid unit found"
+        unit_abbreviation = match.group(2).lower()
+
+        # Check if the matched unit or abbreviation is valid
+        if unit_abbreviation in unit_mapping:
+            # Convert abbreviation to full unit name
+            full_unit = unit_mapping[unit_abbreviation]
+        elif unit_abbreviation in valid_units:
+            # It's already a valid unit
+            full_unit = unit_abbreviation
+        else:
+            # No valid unit found, skip this match
+            continue
+
+        # Append the matched number and unit
+        matches.append(f"{number} {full_unit}")
+
+    if(len(matches) == 0):
+        return ""
+    return matches[0]
 
 # Sample input text
 text = """awd test
-1238 awd ad
-823 W
+1238madw
+823W
 100.23 m
 
 Power adapter
@@ -113,7 +126,7 @@ Fan drive
 """
 
 # Example usage for the entity 'wattage'
-entity_key = 'height'  # You can change this to test other entities
+entity_key = 'wattage'  # You can change this to test other entities
 valid_units = entity_unit_map[entity_key]
 unit_mapping = generate_abbreviation_map(entity_key, entity_unit_map, abbreviation_map)
 
