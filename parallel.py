@@ -105,32 +105,32 @@ def predictor(image_link, category_id, entity_name):
     '''
     Download the image and save it to a specified folder.
     '''
-    print(f"Processing: {image_link} | Category: {category_id} | Entity: {entity_name}")
+    #print(f"Processing: {image_link} | Category: {category_id} | Entity: {entity_name}")
     
     try:
         download_folder = os.path.join(os.getcwd(), "temp_images")
         if not os.path.exists(download_folder):
-            print("Creating temp_images folder")
+            #print("Creating temp_images folder")
             os.makedirs(download_folder)
         
         # Download the image using utils.py functions
-        print("Downloading image")
+        #print("Downloading image")
         src.utils.download_image(image_link, download_folder)
-        print(f"Image saved to: {os.path.join(download_folder, os.path.basename(image_link))}")
+        #print(f"Image saved to: {os.path.join(download_folder, os.path.basename(image_link))}")
         image_save_path = os.path.join(download_folder, os.path.basename(image_link))
         # Open the image and extract text
 
-        print("Extracting text from image")
+        #print("Extracting text from image")
         image = Image.open(image_save_path)
         text_in_image = pytesseract.image_to_string(image)
-        print("texttttttttt",text_in_image)
+        #print("texttttttttt",text_in_image)
 
         valid_units = entity_unit_map[entity_name]
         unit_mapping = generate_abbreviation_map(entity_name, entity_unit_map, abbreviation_map)
 
         # Extract the number and unit from the text
         answer = extract_number_and_unit(text_in_image, valid_units, unit_mapping)
-        print(f"Answer: {answer}")
+        #print(f"Answer: {answer}")
         return answer
 
         
@@ -164,7 +164,7 @@ def process_row(row, previous_results, output_filename):
     with open(output_filename, 'a') as f:
         f.write(f"{index},{prediction}\n")
 
-    print(f"Processed index {index} with prediction: {prediction}")
+    #print(f"Processed index {index} with prediction: {prediction}")
     return index, prediction
 
 if __name__ == "__main__":
